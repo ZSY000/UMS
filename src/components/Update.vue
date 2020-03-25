@@ -1,5 +1,5 @@
 <template>
-  <div class="add">
+  <div class="update">
     <form action="">
       <label><span>* </span>姓名：</label>
       <input type="text" v-model="user.name">
@@ -37,8 +37,8 @@
       否<input type="radio" name="q5" value=false checked v-model="user.info[4]">
 
       <p v-if="tip" class="tip">请完善全部信息！</p>
-      <p v-if="submitted" class="submitted">添加成功！正在跳转...</p>
-      <input type="submit" value="提交" @click.prevent="addInfo" v-if="!submitted">
+      <p v-if="submitted" class="submitted">修改成功！正在跳转...</p>
+      <input type="submit" value="确认修改" @click.prevent="updateInfo" v-if="!submitted">
     </form>
   </div>
 </template>
@@ -48,12 +48,13 @@ import axios from 'axios'
 export default {
   data () {
     return {
+      id: this.$route.params.id,
       user: {
         name: '',
         tel: '',
         addr: '',
         vehicle: '',
-        info: [false, false, false, false, false]
+        info: []
       },
       tip: false, // 提示信息
       submitted: false
@@ -61,12 +62,12 @@ export default {
   },
   methods: {
     // 提交信息
-    addInfo () {
+    updateInfo () {
       if (this.user.name === '' || this.user.tel === '' || this.user.addr === '' || this.user.vehicle === '') {
         this.tip = true
         return
       }
-      axios.post('http://localhost:3000/users', this.user).then((res) => {
+      axios.put('http://localhost:3000/users/' + this.id, this.user).then((res) => {
         this.tip = false
         this.submitted = true
         setTimeout(() => {
@@ -74,12 +75,18 @@ export default {
         }, 3000)
       })
     }
+  },
+  created () {
+    // 获取单条详情
+    axios.get('http://localhost:3000/users/' + this.id).then((res) => {
+      this.user = res.data
+    })
   }
 }
 </script>
 
 <style scoped>
-.add{
+.update{
   max-width: 80%;
   margin: 0 auto;
   font-size: 14px;
